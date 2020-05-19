@@ -27,11 +27,26 @@ class PassportController extends Controller
 
     public function login(LoginRequest $request) {
 
-        if (Auth::attempt($request->only(['email','password']))) {
+        if ($request->has('pin')) {
 
-            $token = Auth::user()->createToken('FlipApp')->accessToken;
-            return response()->json(['status' => true,'user' => Auth::user(),'_token' => $token]);
+            $user = User::where('pin',$request->pin)->where('email',$request->email)->first();
 
+            if ($user) {
+                Auth::login($user);
+            } else {
+                return response()->json(['status' => false,'message' => "Wrong email or pin"]);
+
+            }
+        } else {
+
+            if (!Auth::attempt($request->only(['email','password']))) {
+                return response()->json(['status' => false,'message' => "Wrong email or password"]);
+            }
         }
+
+        $token = Auth::user()->createToken('FlipApp')->accessToken;
+
+        return response()->json(['status' => true,'user' => Auth::user(),'_token' => $token]);
+
     }
 }

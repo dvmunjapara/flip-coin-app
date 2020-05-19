@@ -14,8 +14,7 @@ class UserController extends Controller
         $users = User::where('id','!=',Auth::id())->withCount(['bets as bets_won' => function($query) {
             $query->whereResult(0)->select(\DB::raw('count(*)'));
         }])->when($request->search,function ($query) use ($request){
-            $query->whereRaw("concat_ws(' ',name,email,username) 
-like '%$request->search%'");
+            $query->whereRaw("concat_ws(' ',name,email,username) like '%$request->search%'");
 
         })->where(function ($query){
 
